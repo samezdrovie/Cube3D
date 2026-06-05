@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kostka 3D - Roboto Font</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            font-family: 'Roboto', sans-serif; /* Zmiana globalnej czcionki */
+        }
+        canvas { display: block; position: absolute; top: 0; left: 0; z-index: 1; }
+
+        /* Styl nowoczesnego Navbaru inspirowany Dimension */
+        #navbar-container {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10; /* Wyżej niż canvas */
+            width: auto;
+            pointer-events: auto;
+        }
+
+        .modern-nav {
+            display: flex;
+            list-style: none;
+            background: rgba(242, 242, 242, 0.09); /* Kolorystyka dopasowana do ścianek Twojej kostki (#F0E9B6) */
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(242, 242, 242, 0.4); /* Kolor Twoich krawędzi #84C5B1 */
+            border-radius: 4px;
+            padding: 0;
+            margin: 0;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .modern-nav li {
+            border-right: 1px solid rgba(242, 242, 242, 0.4);
+        }
+
+        .modern-nav li:last-child {
+            border-right: none;
+        }
+
+        .modern-nav a {
+            display: block;
+            padding: 15px 90px;
+            color: #ffffff;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-family: 'Roboto', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.2rem;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .modern-nav a:hover {
+            background: rgba(242, 242, 242, 0.15);
+            color: #F0E9B6;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="navbar-container">
+        <ul class="modern-nav">
+            <li><a data-face="przod">Rome</a></li>
+            <li><a data-face="tyl">Moscow</a></li>
+            <li><a data-face="gora">Paris</a></li>
+            <li><a data-face="dol">Madrid</a></li>
+            <li><a data-face="lewo">Berlin</a></li>
+            <li><a data-face="prawo">Warsaw</a></li>
+        </ul>
+    </div>
+
+    <script type="module" src="/main.js"></script>
+</body>
+</html>
