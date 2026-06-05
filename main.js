@@ -1,9 +1,6 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/Addons.js';
 
-
-
-
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ antialias: true }); // dodano antialias dla gładkości
@@ -17,39 +14,66 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 function createTextTexture(text) {
-const canvas = document.createElement('canvas');
-canvas.width = 256;
-canvas.height = 256;
-const ctx = canvas.getContext('2d');
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d');
 
-// Tło ścianki
-ctx.fillStyle = '#F2F2F2';
-ctx.fillRect(0, 0, 256, 256);
+  // Match cube face background
+  ctx.fillStyle = '#F2F2F2';
+  ctx.fillRect(0, 0, 512, 512);
 
-// --- USTAWIENIE CZCIONKI ROBOTO ---
-// Możesz użyć 'bold', 'normal' lub wartości liczbowych np. '900 40px Roboto'
-ctx.font = 'normal 40px Roboto';
-ctx.fillStyle = 'black';
-ctx.textAlign = 'center';
-ctx.textBaseline = 'middle';
-ctx.fillText(text, 128, 128);
+  // Mirror navbar: uppercase, Roboto 400, letter-spacing 0.2rem
+  // At 512px canvas, scale font up proportionally from navbar's 11px
+  ctx.font = '400 42px Roboto';
+  ctx.fillStyle = 'black';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
 
-return new THREE.CanvasTexture(canvas);
+  // Manually apply letter-spacing (canvas doesn't support it natively)
+  const letters = text.toUpperCase().split('');
+  const spacing = 8; // ~0.2rem equivalent at this scale
+  const totalWidth = letters.reduce((acc, ch) => acc + ctx.measureText(ch).width + spacing, 0) - spacing;
+  let x = 256 - totalWidth / 2;
+
+  letters.forEach(ch => {
+    ctx.fillText(ch, x + ctx.measureText(ch).width / 2, 256);
+    x += ctx.measureText(ch).width + spacing;
+  });
+
+  return new THREE.CanvasTexture(canvas);
 }
 
-const materials = [
-new THREE.MeshStandardMaterial({ map: createTextTexture('Warsaw') }),
-new THREE.MeshStandardMaterial({ map: createTextTexture('Berlin') }),
-new THREE.MeshStandardMaterial({ map: createTextTexture('Paris') }),
-new THREE.MeshStandardMaterial({ map: createTextTexture('Madrid') }),
-new THREE.MeshStandardMaterial({ map: createTextTexture('Rome') }),
-new THREE.MeshStandardMaterial({ map: createTextTexture('Moscow') }),
-];
+
+// 1. Declare the variable once at the top level
+let cube; 
 
 const geometry = new RoundedBoxGeometry(2, 2, 2, 6, 0.1);
-const cube = new THREE.Mesh(geometry, materials);
-scene.add(cube);
 
+// Placeholder material while fonts load
+const cube_mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0xf2f2f2 }));
+scene.add(cube_mesh);
+
+// 2. CORRECTED: Assign the mesh to the existing 'cube' variable (do not use 'const' here)
+cube = cube_mesh;
+
+document.fonts.ready.then(() => {
+  console.log("Roboto loaded. Building cube faces...");
+
+  const materials = [
+    new THREE.MeshStandardMaterial({ map: createTextTexture('Warsaw') }),
+    new THREE.MeshStandardMaterial({ map: createTextTexture('Berlin') }),
+    new THREE.MeshStandardMaterial({ map: createTextTexture('Paris') }),
+    new THREE.MeshStandardMaterial({ map: createTextTexture('Madrid') }),
+    new THREE.MeshStandardMaterial({ map: createTextTexture('Rome') }),
+    new THREE.MeshStandardMaterial({ map: createTextTexture('Moscow') }),
+  ];
+
+  // This will now work perfectly because 'cube' points to your mesh
+  cube.material = materials;
+
+  animate();
+});
 
 const light = new THREE.DirectionalLight(0xffffff, 1.5);
 light.position.set(5, 10, 7); // Lekko z boku i z góry, by ładnie oświetlać bryłę
@@ -164,12 +188,14 @@ isAnimatingToFace = false;
 // Używamy natywnego API przeglądarki do sprawdzenia stanu czcionek:
 
 document.fonts.ready.then(() => {
-console.log("Czcionka Roboto załadowana pomyślnie. Uruchamiam scenę 3D...");
-// Dopiero teraz tworzymy materiały (z pewnością, że Roboto zadziała na Canvasie)
-cube.material.forEach((mat, index) => {
-// Opcjonalnie odświeżamy tekstury, jeśli zdefiniowałeś je wcześniej globalnie
-mat.map.needsUpdate = true;
-});
+  console.log("Czcionka Roboto załadowana pomyślnie. Uruchamiam scenę 3D...");
+  
+  // Safe way to loop through materials array
+  if (Array.isArray(cube.material)) {
+    cube.material.forEach((mat) => {
+      mat.map.needsUpdate = true;
+    });
+  }
 
-animate();
-}); 
+  animate();
+});
